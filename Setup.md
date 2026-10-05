@@ -10,9 +10,9 @@ so you can run both without harm.
 ## 0. One-time prerequisites (both platforms)
 
 1. **The project must be on GitHub** and you need the clone URL, for example
-   `https://github.com/<OWNER>/mast3r_metric_distance.git`.
+   `https://github.com/Lonewarrior147/Metric-Distance-Estimation-from-Uncalibrated-Image-Pairs-via-MASt3R.git`.
    - Put this URL in the `REPO_URL` line of the **Colab** setup cell and the **Kaggle** setup
-     cell. It is currently a placeholder (`<OWNER>`).
+     cell. It is already set to the project repository.
    - If the repository is **private**, create a GitHub token (fine-grained, read and write
      access to this repo) and see section 4.
 2. **A GPU runtime.** MASt3R is too slow on CPU. Use a Tesla T4 on both platforms.
@@ -106,7 +106,7 @@ Never paste a token into a notebook cell. Store it as a secret instead.
   `kaggle_secrets.UserSecretsClient().get_secret("GITHUB_TOKEN")`.
 
 Then set the clone URL to use it, for example
-`https://<TOKEN>@github.com/<OWNER>/mast3r_metric_distance.git`, inside the setup cell only
+`https://<TOKEN>@github.com/Lonewarrior147/Metric-Distance-Estimation-from-Uncalibrated-Image-Pairs-via-MASt3R.git`, inside the setup cell only
 for that session. Do not print the URL. Do not save it in any file.
 
 Set your git identity once per runtime:
