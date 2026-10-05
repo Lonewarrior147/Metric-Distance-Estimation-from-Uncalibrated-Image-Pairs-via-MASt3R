@@ -1,0 +1,22 @@
+# Python / notebooks
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Local virtual environment (1.7 GB - never commit)
+.venv/
+
+# Model checkpoint (2.75 GB, exceeds GitHub's 100 MB file limit).
+# Re-downloaded by the setup cell - see Setup.md.
+checkpoints/
+
+# Third-party official MASt3R clone (has its own git history and submodules).
+# Re-cloned by the setup cell - see Setup.md.
+mast3r/
+
+# Ground-truth scenes and any private photos. Not shared through git.
+data/
+
+# Secrets - never commit tokens
+.env
+*.token
