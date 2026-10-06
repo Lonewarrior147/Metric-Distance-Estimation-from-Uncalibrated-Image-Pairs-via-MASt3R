@@ -83,7 +83,7 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 2. Inference | DONE (user ran) | `load_pair`, `run_mast3r`, `SCENES` (chateau, nle_tower), `IMG_SIZE=512`. Both point maps are in view 1's frame. |
 | 3. Point-map extraction | DONE (user ran) | `extract_pointmaps`. Percentile confidence filter. Bbox IoU frame check. Focal estimate. |
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
-| 5. Distance estimation | WRITTEN, awaiting user run on Kaggle/Colab (2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
+| 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
 | 6. Ground-truth validation | NOT STARTED | Dataset chosen: **7-Scenes** (indoor RGB-D, owner decision 2026-10-06). Must verify its file conventions (intrinsics, depth registration, pose direction) and ask before downloading. |
 | 7. Evaluation metrics | NOT STARTED | MAE, RMSE, relative error, percentage error (per ORIGINAL_BRIEF Section 6). |
 | 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
@@ -106,7 +106,7 @@ letter labels.
 
 ## 5. Runtime
 
-Kaggle (Tesla T4, Python 3.12) or Google Colab (T4). Both are used alternately, so the setup
+Kaggle (Tesla T4; last run: Python 3.13.15, torch 2.11.0+cu128, numpy 2.1.3) or Google Colab (T4). Both are used alternately, so the setup
 cells at the top of `main.ipynb` handle either one. **Full steps are in `Setup.md`.**
 
 - Runtime files are temporary. Copy anything worth keeping back to git before a session ends.
@@ -133,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-- Phase 5 cosmetic fixes (2 cells in `main.ipynb`) - raghunandan with Claude Code - since 2026-10-06
+_(none)_
 
 ---
 
@@ -151,6 +151,14 @@ Format for each entry:
 
 ### raghunandan
 
+- 2026-10-06 | Phase 5 follow-up | runtime: Kaggle (user run), local CPU (checks)
+  Did: refusal message shows one decimal (a 10.04% floor no longer reads "10% (limit 10%)");
+  selected-points figure staggers labels. Read the user's Kaggle outputs.
+  Verified: Kaggle run: all cells through Phase 5 ran without error; chateau 505 reliable matches,
+  focal 930 px; 5 of 8 demo distances reported (D 0.55-0.73, floors 6-9% of D), 3 refused.
+  CAUTION: the bundled scenes are outdoor buildings yet the model puts them 2-4 units away, so the
+  absolute scale is very likely wrong there (plausibility argument only; ground truth needed).
+  Next: user says "Proceed with phase 6" (7-Scenes, indoor).
 - 2026-10-06 | Phase 5 | runtime: local CPU only (no Kaggle/Colab run yet)
   Did: appended Phase 5 to `main.ipynb` (distance estimation with error floor and refusal, demo on
   the two bundled scenes, optional ground-truth hook, 7-Scenes helpers). Recorded the application
