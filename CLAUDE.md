@@ -83,8 +83,8 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 2. Inference | DONE (user ran) | `load_pair`, `run_mast3r`, `SCENES` (chateau, nle_tower), `IMG_SIZE=512`. Both point maps are in view 1's frame. |
 | 3. Point-map extraction | DONE (user ran) | `extract_pointmaps`. Percentile confidence filter. Bbox IoU frame check. Focal estimate. |
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
-| 5. Distance estimation | IN PROGRESS (claimed 2026-10-06; owner said "do phase 5", dataset for Phase 6 = 7-Scenes) | Plan: pick point pairs, compute `D = ||P_a - P_b||` from the point maps, attach an error bound (local residual + pixel quantisation), refuse low-confidence points. Demo on bundled scenes labelled "model estimate only". Optional ground-truth hook at `data/scene_XX/`. |
-| 6. Ground-truth validation | NOT STARTED | Needs a dataset with true distances (candidates: ETH3D, ScanNet, NYU Depth V2, DTU, 7-Scenes, KITTI, Tanks and Temples). No dataset chosen; owner leans indoor (see application framing in section 1). |
+| 5. Distance estimation | WRITTEN, awaiting user run on Kaggle/Colab (2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
+| 6. Ground-truth validation | NOT STARTED | Dataset chosen: **7-Scenes** (indoor RGB-D, owner decision 2026-10-06). Must verify its file conventions (intrinsics, depth registration, pose direction) and ask before downloading. |
 | 7. Evaluation metrics | NOT STARTED | MAE, RMSE, relative error, percentage error (per ORIGINAL_BRIEF Section 6). |
 | 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
@@ -133,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-- Phase 5 (distance estimation) - raghunandan with Claude Code - since 2026-10-06 - editing `main.ipynb` (appending after the Phase 4 summary)
+_(none)_
 
 ---
 
@@ -150,6 +150,18 @@ Format for each entry:
 ```
 
 ### raghunandan
+
+- 2026-10-06 | Phase 5 | runtime: local CPU only (no Kaggle/Colab run yet)
+  Did: appended Phase 5 to `main.ipynb` (distance estimation with error floor and refusal, demo on
+  the two bundled scenes, optional ground-truth hook, 7-Scenes helpers). Recorded the application
+  framing; chose 7-Scenes for Phase 6.
+  Verified: synthetic tests passed (x/y indexing, refusals, pixel mapping vs real `load_images`
+  for 6 photo sizes, 7-Scenes geometry on a synthetic wall). Full pipeline ran on CPU on the
+  chateau pair: 505 reliable matches, focal 929.6 px, threshold 2.104 (all match Phases 3-4), 3 of 4
+  demo distances reported (D about 0.58-0.70, floors 6-9% of D), 1 refused. Not run on GPU; the
+  new cells are not run in the notebook itself.
+  Next: user runs the Phase 5 cells and reports; then "Proceed with phase 6" (download 7-Scenes,
+  verify assumed conventions, build `data/scene_XX/`).
 
 - 2026-10-05 | Repo setup | runtime: Kaggle
   Did: created `.gitignore`, `CLAUDE.md`, `Setup.md`, and the Colab and Kaggle setup cells at the
