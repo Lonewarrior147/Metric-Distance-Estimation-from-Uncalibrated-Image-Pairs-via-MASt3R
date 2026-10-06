@@ -133,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-_(none)_
+- Phase 5 cosmetic fixes (2 cells in `main.ipynb`) - raghunandan with Claude Code - since 2026-10-06
 
 ---
 
