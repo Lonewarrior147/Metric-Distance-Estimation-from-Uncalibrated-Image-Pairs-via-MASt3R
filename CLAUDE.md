@@ -84,7 +84,7 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 3. Point-map extraction | DONE (user ran) | `extract_pointmaps`. Percentile confidence filter. Bbox IoU frame check. Focal estimate. |
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
 | 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
-| 6. Ground-truth validation | NOT STARTED | Dataset chosen: **7-Scenes** (indoor RGB-D, owner decision 2026-10-06). Must verify its file conventions (intrinsics, depth registration, pose direction) and ask before downloading. |
+| 6. Ground-truth validation | IN PROGRESS (claimed 2026-10-06) | Dataset chosen: **7-Scenes** (indoor RGB-D, owner decision 2026-10-06). Must verify its file conventions (intrinsics, depth registration, pose direction) and ask before downloading. |
 | 7. Evaluation metrics | NOT STARTED | MAE, RMSE, relative error, percentage error (per ORIGINAL_BRIEF Section 6). |
 | 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
@@ -133,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-_(none)_
+- Phase 6 (ground-truth validation, 7-Scenes) - raghunandan with Claude Code - since 2026-10-06 - appending to `main.ipynb` after the Phase 5 summary
 
 ---
 
