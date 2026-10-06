@@ -84,8 +84,8 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 3. Point-map extraction | DONE (user ran) | `extract_pointmaps`. Percentile confidence filter. Bbox IoU frame check. Focal estimate. |
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
 | 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
-| 6. Ground-truth validation | IN PROGRESS (claimed 2026-10-06) | Dataset chosen: **7-Scenes** (indoor RGB-D, owner decision 2026-10-06). Must verify its file conventions (intrinsics, depth registration, pose direction) and ask before downloading. |
-| 7. Evaluation metrics | NOT STARTED | MAE, RMSE, relative error, percentage error (per ORIGINAL_BRIEF Section 6). |
+| 6. Ground-truth validation | WRITTEN, awaiting user run on Kaggle (2026-10-07) | `data/_raw_7scenes` streamed frames of chess/seq-01, conventions verified on real files (pose = camera-to-world, f about 585), `robust_gt_pairs`, 4 scenes x 10 GT pairs, scale test per scene. Cells 76-87. Local CPU preview only (see work log). |
+| 7. Evaluation metrics | IN PROGRESS (claimed 2026-10-07) | `calculate_metrics()`: MAE, RMSE, relative and percentage error, bias, scale ratio, bootstrap CIs, per-scene and accepted-only tables, plots. |
 | 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
 **Known open labels.** The notes use labels "B" (input resolution) and "E" (confidence
@@ -133,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-- Phase 6 (ground-truth validation, 7-Scenes) - raghunandan with Claude Code - since 2026-10-06 - appending to `main.ipynb` after the Phase 5 summary
+- Phase 7 (evaluation metrics) - raghunandan with Claude Code - since 2026-10-07 - appending to `main.ipynb` after the Phase 6 summary
 
 ---
 
@@ -150,6 +150,18 @@ Format for each entry:
 ```
 
 ### raghunandan
+
+- 2026-10-06 | Phase 6 | runtime: local CPU preview only (not yet run on Kaggle)
+  Did: appended Phase 6 to `main.ipynb`: streams a few 7-Scenes `chess/seq-01` frames (134 MB, not
+  3 GB), verifies the dataset conventions on real files, builds 4 ground-truth scenes x 10 pairs that
+  tolerate an 8 px depth-registration error, runs the 5.6 hook, scale test and error table.
+  Verified (local CPU, real model, real frames; the Kaggle run is the one that counts): pose is
+  camera-to-world (84.1% depth agreement vs 0.4% inverse), f about 585 px. Policy accepted 4 of 40
+  pairs (it needs conf >= median at both endpoints in both views: too strict for random points).
+  Using all 40: median D_est/D_gt per scene 0.89 / 0.93 / 1.13 / 1.36 (baselines 0.10-0.82 m), so NO
+  single consistent scale; MAE 0.130, median abs error 0.062, median relative error 12.5%.
+  Depth-to-colour registration is NOT verified (ground truth made tolerant to 8 px instead).
+  Next: user runs the Phase 6 cells; Phase 7 follows.
 
 - 2026-10-06 | Phase 5 follow-up | runtime: Kaggle (user run), local CPU (checks)
   Did: refusal message shows one decimal (a 10.04% floor no longer reads "10% (limit 10%)");
