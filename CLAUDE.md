@@ -85,7 +85,7 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
 | 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
 | 6. Ground-truth validation | WRITTEN, awaiting user run on Kaggle (2026-10-07) | `data/_raw_7scenes` streamed frames of chess/seq-01, conventions verified on real files (pose = camera-to-world, f about 585), `robust_gt_pairs`, 4 scenes x 10 GT pairs, scale test per scene. Cells 76-87. Local CPU preview only (see work log). |
-| 7. Evaluation metrics | IN PROGRESS (claimed 2026-10-07) | `calculate_metrics()`: MAE, RMSE, relative and percentage error, bias, scale ratio, bootstrap CIs, per-scene and accepted-only tables, plots. |
+| 7. Evaluation metrics | WRITTEN, awaiting user run (2026-10-07) | `calculate_metrics()` (MAE, RMSE, rel/pct error, median, p90, bias, scale ratio, rescaled MAE, bootstrap CIs) with a synthetic self-test; summary table, per-pair CSV, 3 plots. Cells 88-95. Reads `ALL_ROWS` or `results/metrics/phase6_gt_results.json`. |
 | 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
 **Known open labels.** The notes use labels "B" (input resolution) and "E" (confidence
@@ -133,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-- Phase 7 (evaluation metrics) - raghunandan with Claude Code - since 2026-10-07 - appending to `main.ipynb` after the Phase 6 summary
+_(none)_
 
 ---
 
@@ -150,6 +150,18 @@ Format for each entry:
 ```
 
 ### raghunandan
+
+- 2026-10-07 | Phase 7 | runtime: local CPU preview only (not yet run on Kaggle)
+  Did: appended Phase 7 to `main.ipynb`: `calculate_metrics` with a self-test on synthetic cases,
+  summary metrics table, per-pair table (`phase7_pairs.csv`), `phase7_metrics.json`, plots of
+  ground truth vs predicted / absolute error / relative error.
+  Verified: self-test passes; table and plots ran on the saved local Phase 6 results (40 pairs).
+  Preview (local CPU, all pairs): MAE 0.130, RMSE 0.223, median abs error 0.062, median relative
+  error 12.5% (bootstrap 95%: 11.0-14.3%, optimistic), bias +0.077, pooled scale ratio 1.03 but per
+  scene 0.89 / 0.93 / 1.13 / 1.36. Rescaling per scene would cut MAE only to 0.128 pooled, so most of
+  the pooled error is NOT a plain scale error (outliers in scenes 3-4). The 3 largest errors are all
+  pairs the 5.2 policy refused.
+  Next: user runs Phase 7 cells; Phase 8 on "Proceed with phase 8".
 
 - 2026-10-06 | Phase 6 | runtime: local CPU preview only (not yet run on Kaggle)
   Did: appended Phase 6 to `main.ipynb`: streams a few 7-Scenes `chess/seq-01` frames (134 MB, not
