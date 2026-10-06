@@ -210,6 +210,19 @@ This comes from the newer Claude session started in this folder. Nothing here ha
 
 **Still needed from the author:** approval of the Phase 5 plan, and a choice of dataset. Phase 7 and the Phase 8 experiments are now defined by the original brief (§13).
 
+## 12b. Application framing and dataset direction (2026-10-06)
+
+**Application.** The author wants to recreate the idea behind Amazon's "view in your room" AR, but from **two photos only**: estimate the metric distance between two places/objects in the user's home, then say whether a given object fits (yes / no / uncertain). The fit decision uses the Phase 5 error bound as its margin. This motivates the research question; it does not replace it.
+
+**Assessment given to the author (keep honest in write-ups):**
+- Strengths: clear practical framing; no AR hardware (Amazon's AR relies on ARKit/ARCore tracking, IMU, sometimes LiDAR); a thresholded fit decision with a margin is more forgiving than quoting an exact distance.
+- Cautions: not provably "unique" (room-measuring and furniture-fit apps exist; two-image feed-forward metric reconstruction for this is less common, but no literature search has been done). Fit needs more than a point-to-point distance (free volume or floor area); start with point-to-point width, then height. A fit check needs about 2-5 cm accuracy on 1-3 m gaps, unproven. Metric scale from uncalibrated pairs is the weakest link (plausible 5-15% scale error). Textureless walls and floors hurt matching.
+- Possible new late phase (after Phase 8): fit check with inputs = object dimensions + two chosen points, output = fits / does not fit / uncertain. Only worth building once Phases 6-8 give real accuracy numbers.
+
+**Dataset direction.** Ground truth does not require the author's own tape measurements. True distances are derived from a dataset's depth/3D data (back-project two pixels with GT depth, intrinsics and pose, then take the 3D distance); accuracy is bounded by the sensor. The author prefers an **indoor** dataset because the target is distance between small objects. Candidates: 7-Scenes, NYU Depth V2 (Kinect RGB-D, roughly 1-2 cm noise), ScanNet (needs terms-of-use form). Avoid datasets in MASt3R's training mix (ARKitScenes, ScanNet++, Habitat, BlendedMVS, MegaDepth, CO3D, Waymo, etc.) to avoid flattering results; this list is from memory and **must be verified against the MASt3R paper** (see Q5 for the repo-recorded list). ETH3D (laser GT) stays an option for a high-accuracy check. No dataset is chosen or downloaded. Tape-measured home pairs remain an optional later real-world test.
+
+**Still open:** the specific indoor dataset; whether the ground-truth hook goes into Phase 5 or Phase 5 stays model-only; the Phase 5 plan is still unapproved.
+
 ## 13. The original brief (recovered, verbatim in `ORIGINAL_BRIEF.md`)
 
 The author supplied the exact original prompt. It is saved verbatim as `ORIGINAL_BRIEF.md` in this folder: **read it first**. It is the spec. Summary and how the project has deviated from it:

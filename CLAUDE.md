@@ -14,6 +14,19 @@ real-world distances from uncalibrated image pairs, and what factors affect that
 **Pipeline:** image pair -> MASt3R -> point maps + dense descriptors -> pixel correspondences
 -> corresponding 3D points -> Euclidean distance -> compare with ground truth -> error analysis.
 
+**Application framing (decided 2026-10-06, owner: raghunandan).** Motivating use case: an
+Amazon-style "see it in your home" check, but from only two ordinary photos and no AR
+hardware. The user marks where an object would go (distance between two small objects or
+points); the pipeline estimates that metric gap and answers "does the object fit: yes / no /
+uncertain", using the error bound as a margin. This is the *motivation*, not a change to the
+research question. A fit-check phase would come after Phase 8 and only if the accuracy numbers
+make it viable (a fit check needs roughly 2-5 cm on 1-3 m gaps; unproven). Do not call the idea
+"unique" in any write-up without a literature check (room-measuring and furniture-fit apps
+exist). Dataset leaning: an **indoor** dataset, since the target is small-object distances at
+room scale. Prefer held-out sets (7-Scenes, NYU Depth V2, ScanNet) over MASt3R training sets
+(ARKitScenes, ScanNet++, Habitat, etc., see context.md Q5). Not final; the owner has not yet
+picked a dataset. Optional tape-measured home pairs may be added later as a real-world check.
+
 The full brief is in `ORIGINAL_BRIEF.md` (the original prompt, verbatim). Scope notes and the
 running decision log are in `context.md`.
 
@@ -70,8 +83,8 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 2. Inference | DONE (user ran) | `load_pair`, `run_mast3r`, `SCENES` (chateau, nle_tower), `IMG_SIZE=512`. Both point maps are in view 1's frame. |
 | 3. Point-map extraction | DONE (user ran) | `extract_pointmaps`. Percentile confidence filter. Bbox IoU frame check. Focal estimate. |
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
-| 5. Distance estimation | PLAN PROPOSED, awaiting user approval - not written | Plan: pick point pairs, compute `D = ||P_a - P_b||` from the point maps, attach an error bound (local residual + pixel quantisation), refuse low-confidence points. Demo on bundled scenes labelled "model estimate only". Optional ground-truth hook at `data/scene_XX/`. |
-| 6. Ground-truth validation | NOT STARTED | Needs a dataset with true distances (candidates: ETH3D, ScanNet, NYU Depth V2, DTU, 7-Scenes, KITTI, Tanks and Temples). No dataset chosen. |
+| 5. Distance estimation | IN PROGRESS (claimed 2026-10-06; owner said "do phase 5", dataset for Phase 6 = 7-Scenes) | Plan: pick point pairs, compute `D = ||P_a - P_b||` from the point maps, attach an error bound (local residual + pixel quantisation), refuse low-confidence points. Demo on bundled scenes labelled "model estimate only". Optional ground-truth hook at `data/scene_XX/`. |
+| 6. Ground-truth validation | NOT STARTED | Needs a dataset with true distances (candidates: ETH3D, ScanNet, NYU Depth V2, DTU, 7-Scenes, KITTI, Tanks and Temples). No dataset chosen; owner leans indoor (see application framing in section 1). |
 | 7. Evaluation metrics | NOT STARTED | MAE, RMSE, relative error, percentage error (per ORIGINAL_BRIEF Section 6). |
 | 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
@@ -120,7 +133,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-_(none)_
+- Phase 5 (distance estimation) - raghunandan with Claude Code - since 2026-10-06 - editing `main.ipynb` (appending after the Phase 4 summary)
 
 ---
 
