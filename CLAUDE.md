@@ -22,10 +22,10 @@ uncertain", using the error bound as a margin. This is the *motivation*, not a c
 research question. A fit-check phase would come after Phase 8 and only if the accuracy numbers
 make it viable (a fit check needs roughly 2-5 cm on 1-3 m gaps; unproven). Do not call the idea
 "unique" in any write-up without a literature check (room-measuring and furniture-fit apps
-exist). Dataset leaning: an **indoor** dataset, since the target is small-object distances at
-room scale. Prefer held-out sets (7-Scenes, NYU Depth V2, ScanNet) over MASt3R training sets
-(ARKitScenes, ScanNet++, Habitat, etc., see context.md Q5). Not final; the owner has not yet
-picked a dataset. Optional tape-measured home pairs may be added later as a real-world check.
+exist). Dataset: **7-Scenes** (indoor RGB-D; chosen 2026-10-06), first scene `chess/seq-01`. It is
+believed (from memory, unverified) to be outside MASt3R's training mix (ARKitScenes, ScanNet++,
+Habitat, etc., see context.md Q5). Optional tape-measured home pairs may be added later as a
+real-world check.
 
 The full brief is in `ORIGINAL_BRIEF.md` (the original prompt, verbatim). Scope notes and the
 running decision log are in `context.md`.
@@ -46,7 +46,7 @@ results/figures/    Saved plots (matplotlib, static).
 results/metrics/    Saved numbers.
 mast3r/             NOT in git. Official naver/mast3r clone. Setup cell re-clones it.
 checkpoints/        NOT in git. 2.75 GB metric checkpoint. Setup cell re-downloads it.
-data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty for now.
+data/               NOT in git. Ground-truth scenes (data/scene_XX/...) and data/_raw_7scenes/, both written by Phase 6 on the runtime.
 .venv/              NOT in git. Local only.
 ```
 
@@ -86,7 +86,7 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...). Empty f
 | 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
 | 6. Ground-truth validation | WRITTEN, awaiting user run on Kaggle (2026-10-07) | `data/_raw_7scenes` streamed frames of chess/seq-01, conventions verified on real files (pose = camera-to-world, f about 585), `robust_gt_pairs`, 4 scenes x 10 GT pairs, scale test per scene. Cells 76-87. Local CPU preview only (see work log). |
 | 7. Evaluation metrics | WRITTEN, awaiting user run (2026-10-07) | `calculate_metrics()` (MAE, RMSE, rel/pct error, median, p90, bias, scale ratio, rescaled MAE, bootstrap CIs) with a synthetic self-test; summary table, per-pair CSV, 3 plots. Cells 88-95. Reads `ALL_ROWS` or `results/metrics/phase6_gt_results.json`. |
-| 8. Experiments / ablation | NOT STARTED | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
+| 8. Experiments / ablation | NOT STARTED (next, after the owner runs Phases 6-7) | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
 **Known open labels.** The notes use labels "B" (input resolution) and "E" (confidence
 percentile). The brief lists the full set above. Confirm with the owner before using the
@@ -111,7 +111,8 @@ cells at the top of `main.ipynb` handle either one. **Full steps are in `Setup.m
 
 - Runtime files are temporary. Copy anything worth keeping back to git before a session ends.
 - The checkpoint must be re-downloaded (about 2.75 GB) on every new runtime.
-- No ground truth exists yet. Every distance is "model estimate only".
+- Phase 6 builds ground truth from 7-Scenes depth (Kinect-derived, not hand-measured). Distances on the bundled scenes stay "model estimate only".
+- Committed notebook carries only the Phase 1-4 outputs; do not commit newer outputs (10 MB+). Cells 60+ are Phase 5 onward; Phase 1-4 cell numbers in `context.md` are +2.
 
 ---
 
@@ -150,6 +151,13 @@ Format for each entry:
 ```
 
 ### raghunandan
+
+- 2026-10-07 | Docs sync | runtime: local
+  Did: brought `CLAUDE.md` and `context.md` up to date for Phases 5-7 (new `context.md` section 14 with
+  results, verified 7-Scenes conventions, open items; old plan sections marked superseded).
+  Verified: all Phase 5-7 commits are on `origin/main`. The owner's local `main.ipynb` still carries
+  Kaggle outputs for Phases 5 onward; deliberately NOT committed (10 MB+).
+  Next: owner runs Phases 6-7 on Kaggle; then "Proceed with phase 8".
 
 - 2026-10-07 | Phase 7 | runtime: local CPU preview only (not yet run on Kaggle)
   Did: appended Phase 7 to `main.ipynb`: `calculate_metrics` with a self-test on synthetic cases,

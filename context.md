@@ -2,6 +2,8 @@
 
 Handover document for continuing this project with a fresh Claude (or any engineer). Read it fully before touching anything.
 
+**Status (2026-10-07): Phases 1-7 are written; 1-5 were run by the owner on Kaggle, 6-7 are awaiting their run. Phase 8 is next. Read §14 first for the current state; the sections before it describe how things stood earlier and are marked where superseded.**
+
 **Provenance.** The original chat transcript is lost (see §11). This document is reconstructed from `main.ipynb` (code, markdown and the saved cell outputs), `src/paths.py`, `phases/phase1_setup.py`, the folder contents, and the author's prompt history. Where something is not recorded anywhere, it is marked **UNKNOWN** rather than guessed.
 
 ---
@@ -43,7 +45,7 @@ Root: `/home/raghunandan/3d/` (the parent folder `3d/` also holds `3d.zip`).
 3d/
 ├── 3d.zip                         3.6 GB archive of the project (see below)
 └── mast3r_metric_distance/        <- the project root (PROJECT_ROOT)
-    ├── main.ipynb                 THE deliverable. 59 cells, Phases 1-4 written and run, outputs saved (8.5 MB).
+    ├── main.ipynb                 THE deliverable. 96 cells, Phases 1-7 written (Phases 1-5 run on Kaggle). The committed copy carries the Phase 1-4 outputs only (8.5 MB); newer outputs live in the owner's local copy and are NOT committed.
     ├── src/
     │   └── paths.py               Path constants + bootstrap_mast3r_imports(). Used by phase1_setup.py.
     ├── phases/
@@ -51,7 +53,7 @@ Root: `/home/raghunandan/3d/` (the parent folder `3d/` also holds `3d.zip`).
     ├── mast3r/                    Official `naver/mast3r` clone with submodules (dust3r, croco). Do not edit.
     ├── checkpoints/
     │   └── MASt3R_ViTLarge_BaseDecoder_512_catmlpdpt_metric.pth   (2.75 GB, the metric model)
-    ├── data/                      EMPTY. Reserved for the author's own tape-measured scenes (scene_01/, ...).
+    ├── data/                      Git-ignored. Phase 6 writes data/_raw_7scenes/ (streamed frames) and data/scene_01..04/ on the runtime. Empty locally.
     ├── results/
     │   ├── figures/               EMPTY locally (see caveat below)
     │   └── metrics/               EMPTY locally
@@ -70,7 +72,12 @@ Root: `/home/raghunandan/3d/` (the parent folder `3d/` also holds `3d.zip`).
 | 18-31 | **Phase 2** inference: choose pairs (19-20), input viz (21-22), run inference (23-24), dissect outputs (25-26), confidence maps (27-28), scale test (29-30), summary (31) |
 | 32-45 | **Phase 3** point maps: extract (33-34), depth maps (35-36), confidence filtering (37-38), 3D viz (39-40), geometry checks (41-42), optional interactive 3D (43-44), summary (45) |
 | 46-57 | **Phase 4** correspondences: matcher (47-48), border filter + validity (49-50), correspondence viz (51-52), `filter_matches` (53-54), strict 3D consistency test (55-56), summary (57) |
-| 58 | Empty code cell. This is where Phase 5 begins. |
+| 59 | Phase 4 summary |
+| 60-75 | **Phase 5** distance estimation (see §14) |
+| 76-87 | **Phase 6** ground-truth validation on 7-Scenes |
+| 88-95 | **Phase 7** evaluation metrics |
+
+**Cell numbers above (rows up to 59) are the OLD numbering.** Two setup cells (Colab at 1, Kaggle at 2) were inserted at the top, so every Phase 1-4 cell is now **+2** (Phase 1 is cells 3-19, Phase 4 is 48-59). Cells 60 onward use the current numbering. Find cells by content, not index.
 
 - **`3d.zip`**: a snapshot of the project folder dated Aug 19 (it contains `.venv` and `phases/`, with a Python 3.10 `.pyc`). It is probably what was used to move the project around. Treat it as a backup, not a source of truth.
 - **`.venv/`**: local Python 3.10 with CPU-only PyTorch. The machine has **no NVIDIA GPU** (`nvidia-smi` is absent). The project cannot run end to end locally; see §4.
@@ -159,6 +166,8 @@ The checkpoint's architecture string matches the README's metric training recipe
 
 ## 9. The remaining jobs
 
+**SUPERSEDED for Phases 5-7: they are written (see §14). What remains is Phase 8 and, if the numbers justify it, a fit-check phase. The text below is the original plan, kept for the Phase 8 definition.**
+
 **Phase 5: distance estimation (NEXT; cell 58 is empty and ready).** The last thing the author said was: they asked how to supply tape-measured input, then said "for now can we skip this part?? if we need it necessarily then maybe leave a space or add some kinda thing that'll enable us to add this and retrain it again or smth. Tell me the plan first."
 So, in this order:
 1. Present a short plan and get approval before writing code.
@@ -174,7 +183,7 @@ So, in this order:
 **Phase 8: experiments / ablation.** Defined in the brief. Factors to study: viewpoint difference, actual distance, image resolution, descriptor matching quality, confidence filtering, point selection, texture richness, occlusion. Experiments: (1) viewpoint baselines, (2) physical distances, (3) image resolutions, (4) with vs without confidence filtering, (5) high vs low quality correspondences, (6) texture-rich vs texture-poor. NOTE: the notebook's "Phase 8 experiment B" and "experiment E" are really the brief's **secondary questions B (resolution) and E (does filtering low-confidence correspondences help)**, not Experiments 2 and 4.
 
 ## 10. Practical notes for the next session
-- Open `main.ipynb` and read cells 0-58 first. Variables live in the kernel (`model`, `output`, `pm`, `matches_im0/1`, `dconf1/2`, `DEVICE`, ...). If the kernel restarted, re-run cells in order. Phases 2-4 depend on the Phase 1 model load.
+- Open `main.ipynb` and read cells 0-95 first (find by content; see the note under the cell map). Variables live in the kernel (`model`, `output`, `pm`, `matches_im0/1`, `dconf1/2`, `DEVICE`, ...). If the kernel restarted, re-run cells in order. Phases 2-4 depend on the Phase 1 model load.
 - Keep new code cells self-contained and defensively written (assertions, sensible refusal). Save figures to `FIGURES_DIR` and metrics to `METRICS_DIR` in the same style as earlier cells.
 - Because the real runtime is Kaggle, the author must upload any new images (to `data/scene_XX/`) there. Writing the notebook locally does not execute it.
 - Update `summary.md` as phases finish.
@@ -182,11 +191,13 @@ So, in this order:
 ## 11. Known gaps and risks
 - **Lost transcript.** The original Phase 1-4 chat sessions (`2d0ece51-4b54-4e2e-a819-45a114943515`, plus the shorter `b20dcc53-...` and `ba8eaa3a-...`, all run from `/home/raghunandan/3d`) have no transcript on disk, so the design discussion from those is lost beyond what the notebook records. Session `f9d58c52-7448-4705-a88e-d4a02b662156` DOES exist now (`~/.claude/projects/-home-raghunandan-3d-mast3r-metric-distance/`), but it is the *newer* session that started from the resume prompt (see §12), not the original.
 - **Original brief:** the 416-line paste itself is not in the paste cache, but the author has since supplied what appears to be the original prompt (see §13), which defines Q1-Q14, secondary questions A-G and Phases 6-8.
-- **`results/` is empty locally** and the local `.venv` is CPU-only Python 3.10, which differs from the Kaggle runtime.
+- **`results/` is empty locally** and the local `.venv` is CPU-only Python 3.10, which differs from the Kaggle runtime (last Kaggle run: Python 3.13.15, torch 2.11.0+cu128, numpy 2.1.3).
 - **`main.ipynb` is 8.5 MB** because outputs and figures are embedded. Clear outputs before putting it in git or sending by email.
-- No git repo covers the project folder itself (only the nested `mast3r/` clone has `.git`). Nothing has been committed.
+- *(superseded)* The project is now a git repo pushed to `Lonewarrior147/Metric-Distance-Estimation-from-Uncalibrated-Image-Pairs-via-MASt3R`; `CLAUDE.md` holds the two-person protocol, claims and work log.
 
 ## 12. Decisions and discussion since the resume (session `f9d58c52`, 2026-10-05)
+
+**SUPERSEDED: the Phase 5 plan below was approved and implemented (§14). 7-Scenes was chosen as the dataset on 2026-10-06. Kept for the reasoning.**
 
 This comes from the newer Claude session started in this folder. Nothing here has been written into `main.ipynb` yet, and the Phase 5 plan has **not been approved** by the author.
 
@@ -222,6 +233,41 @@ This comes from the newer Claude session started in this folder. Nothing here ha
 **Dataset direction.** Ground truth does not require the author's own tape measurements. True distances are derived from a dataset's depth/3D data (back-project two pixels with GT depth, intrinsics and pose, then take the 3D distance); accuracy is bounded by the sensor. The author prefers an **indoor** dataset because the target is distance between small objects. Candidates: 7-Scenes, NYU Depth V2 (Kinect RGB-D, roughly 1-2 cm noise), ScanNet (needs terms-of-use form). Avoid datasets in MASt3R's training mix (ARKitScenes, ScanNet++, Habitat, BlendedMVS, MegaDepth, CO3D, Waymo, etc.) to avoid flattering results; this list is from memory and **must be verified against the MASt3R paper** (see Q5 for the repo-recorded list). ETH3D (laser GT) stays an option for a high-accuracy check. No dataset is chosen or downloaded. Tape-measured home pairs remain an optional later real-world test.
 
 **Still open:** the specific indoor dataset; whether the ground-truth hook goes into Phase 5 or Phase 5 stays model-only; the Phase 5 plan is still unapproved.
+
+## 14. Current state, results and open items (2026-10-07)
+
+**Who ran what.** Phases 1-5: the owner ran them on a Kaggle T4 (no errors). Phases 6-7: written and checked on a local CPU with the real model and real 7-Scenes frames, **not yet run by the owner**. The numbers below marked *preview* are from that local run; the Kaggle run is the one that counts and may differ slightly (floating point, GPU vs CPU).
+
+### Phase 5 - distance estimation (cells 60-75; run on Kaggle)
+- `estimate_distance(ctx, spec_a, spec_b)` returns `D = ||pts1[a] - pts1[b]||` plus an error floor, or a refusal. Helpers: `original_to_model_xy` (re-derives `load_images`' resize and centre-crop; checked against the real loader for 6 photo sizes), `get_3d_point` (asserts the `(x, y)` vs `[y, x]` swap), `build_context`, `resolve_endpoint`, `analyse_pair` (Phases 2-4 end to end, touches no earlier globals).
+- Error floor per endpoint: `sqrt(max(local median cross-view residual, residual at the point)^2 + (Z/f)^2)`; combined by quadrature and by linear sum. It is a lower bound from self-consistency, not a confidence interval.
+- Refusal when: no reliable match within 16 px ('match' mode); geometry confidence below the 50th percentile in either view; Z <= 0; endpoints coincide; linear floor > 10% of D. Refused results keep `D_unfiltered` for audit. Constants (`MATCH_PERCENTILE=50`, `SEARCH_RADIUS_PX=16`, `LOCAL_RADIUS_PX=40`, `MIN_LOCAL_MATCHES=5`, `REFUSE_FRAC=0.10`) are choices for Phase 8.
+- Ground-truth hook: `load_gt_scenes()` / `run_gt_scene()` read `data/scene_*/metadata.json` (schema in 5.6). 7-Scenes helpers: `read_depth_m`, `backproject`, `project_to_view2` (occlusion check), `sample_gt_pairs`, `write_gt_scene`.
+- **Kaggle result (the owner's run):** on the bundled scenes 5 of 8 demo distances were reported (D about 0.55-0.73, floors 6-9% of D), 3 refused. **Plausibility red flag:** both bundled scenes are outdoor buildings, yet the model puts them about 2-4 units away, so the absolute scale is very likely wrong there. Argument only, not a measurement.
+
+### Phase 6 - ground-truth validation on 7-Scenes (cells 76-87; not yet run by owner)
+- Data: `chess/seq-01` from the Microsoft 7-Scenes server. The scene zip is 3.1 GB, but the server supports range requests and `seq-01.zip` is a deflate member, so the notebook **streams** it and keeps eight frames (about 134 MB). The inner zip's entries are stored with sizes in their local headers, which is what makes streaming work. Raw files go to `data/_raw_7scenes/`.
+- **Conventions verified on the real files:** colour 480x640x3 uint8; depth 480x640 uint16 millimetres, 65535 = invalid (about 21% invalid); rotations orthonormal; **`*.pose.txt` is camera-to-world** (depth-map agreement 84.1% read that way vs 0.4% inverted); focal sweep peaks at 585-600 px, so fx = fy = 585, principal point (320, 240) holds. These are asserted in 6.2.
+- **NOT verified: depth-to-colour registration.** A photometric test on this data was inconclusive (best shift sat at the edge of the search range and changed between pairs). Instead `robust_gt_pairs` keeps only pairs whose 3D distance moves by <= 2 cm and whose image-2 location moves by <= 3 px under an 8-px depth shift. This selects smooth regions, so the pairs are easier than average.
+- Frame pairs: (0,30), (40,80), (100,160), (0,100); baselines 0.10 / 0.41 / 0.54 / 0.82 m, rotations 4.5 / 9.6 / 18 / 19.6 deg; 10 pairs each, true D 0.23-0.95 m. (An earlier choice, 150->230, left too few robust points; 6.3 now skips a bad pair instead of aborting.) Ground truth is derived from image-1 depth, so it carries Kinect noise (not subtracted); `uncertainty_m` records registration sensitivity only.
+- *Preview:* the 5.2 policy accepted only **4 of 40** pairs. The rule needs confidence >= the 50th percentile at both endpoints in both views, which random points pass about 1 time in 16, so this is a property of the policy, not proof the point maps are bad. The scale test therefore uses `D_unfiltered` for all 40 pairs and reports the accepted subset beside it.
+- *Preview scale test* (median `D_est / D_gt` per scene): **0.89 / 0.93 / 1.13 / 1.36**. Verdict printed by the notebook: **no single consistent scale** (spread 1.53x against a 1.25x threshold). The pooled median of 1.03 hides opposite biases. Within-scene Pearson r: 0.99 / 0.97 / 0.68 / 0.78. The ratio rises with baseline and rotation across these four scenes, which is a pattern to test in Phase 8, not a conclusion (one room, one sequence, ten pairs each).
+
+### Phase 7 - evaluation metrics (cells 88-95; not yet run by owner)
+- `calculate_metrics(est, gt)`: MAE, RMSE, mean/median relative error, mean percentage error, median and p90 absolute error, signed bias, scale ratio, **rescaled MAE** (divides by the group's median ratio; uses ground truth, so a diagnostic only), Pearson r, and bootstrap 95% intervals when n >= 8 (they treat pairs as independent, so they are optimistic). Self-tested on synthetic cases with hand-computed answers, including bad input. Outputs: summary table (all / accepted / per scene), `results/metrics/phase7_pairs.csv`, `phase7_metrics.json`, and three plots (ground truth vs predicted, absolute error, relative error).
+- *Preview, all 40 pairs:* MAE 0.130, RMSE 0.223, median abs error 0.062, p90 0.370, bias +0.077, median relative error 12.5% (bootstrap 11.0-14.3%), pooled scale ratio 1.03. Per scene MAE 0.075 / 0.047 / 0.112 / 0.288. Rescaling each scene barely helps the pooled MAE (0.130 -> 0.128), so most pooled error is **not** a plain scale error: it is a few large outliers in scenes 3-4 (relative errors up to 178%). The five largest errors were all pairs the 5.2 policy refused.
+- Reading for the application (a fit check needs about 2-5 cm on 1-3 m gaps): the tested gaps are shorter (0.23-0.95 m) and the typical error is already about 6 cm, so the target is **not** met on this evidence. Do not describe any of these numbers as accuracy: the pairs are selected for smooth regions and the ground truth is Kinect-derived.
+
+### Assumptions added since §7 (question 13, numbering continues)
+9. Reliable matches = top 50% by `min(desc_conf)`; 'match' mode snaps within 16 px. 10. Error floor is a lower bound from self-consistency. 11. Refuse when the linear floor exceeds 10% of D. 12. `D` comes from view 1's point map; view 2's head is a cross-check. 13. 7-Scenes ground truth is Kinect-derived. 14. Demo floors are optimistic (computed from the same matches). 15. GT = 3D distance between two image-1 depth points, image-2 pixels from poses with an occlusion check. 16. Pairs must survive an 8-px depth shift (2 cm / 3 px). 17. Scale-verdict thresholds (each scene within 15% of 1; scenes within 25% of each other) are choices. 18. 'direct' mode tests point maps, not the matcher. 19. One scene (`chess`, `seq-01`) stands for "indoor" until more are run. 20-23 (Phase 7): metrics use `D_unfiltered` with refused pairs marked; truth is metres vs model units; bootstrap intervals are optimistic; rescaled MAE is a diagnostic.
+
+### Open items and next steps
+- **Owner to run Phases 6 and 7 on Kaggle and report** (6.2 checks, the 6.5 verdict and error table, the 7.2 table, largest errors). Then "Proceed with phase 8".
+- **Phase 8** should include: the policy's confidence percentile (the 50th is too strict for random points; test lower values and filtering on/off), the refusal fraction, viewpoint/baseline vs error (the scale ratio seems to grow with baseline), 'match' mode vs 'direct' (the matcher itself), more 7-Scenes scenes and sequences, a less selected point sample, and the two remaining required plots (viewpoint vs error, confidence vs error).
+- **Not yet checked:** that 7-Scenes is outside MASt3R's training data (believed, from memory; verify against the paper). Depth-to-colour registration. Whether the bundled outdoor scenes' scale error is real (needs ground truth).
+- **Possible later phase:** the fit check (two points + object size -> fits / does not fit / uncertain) only if Phase 8 shows errors small enough to give a useful margin.
+- Housekeeping: the stale "Cell 4" mentions in the Colab/Kaggle setup cells and `Setup.md` now mean cell 6 (offered, not done); a NameError on `MAST3R_REPO` in cell 8 means cell 6 was not run first (a guard cell was offered, not done).
+- Commit messages must end with `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` (the protocol in `CLAUDE.md`; two early commits used `Sonnet 5.5`). Do not commit notebook outputs: the committed copy keeps only the Phase 1-4 outputs that existed before.
 
 ## 13. The original brief (recovered, verbatim in `ORIGINAL_BRIEF.md`)
 
