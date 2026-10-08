@@ -97,6 +97,7 @@ A grid on our held-out set: **original or fine-tuned head**, each with **no scal
 - **Phone check:** 2 scenes, 4 segments each, both nearly flat and viewed from above, where scale is almost uniform. Results were
   within 5 cm for all segments with the anchor. The tape-to-photo edge convention for the mattress scene is still unconfirmed
   (facing edges fit slightly better than outer edges). Not statistics, just a preliminary check.
+- **Training data (both projects):** the MASt3R metric model lists an unreleased internal dataset, so a clean "not in the training data" claim is impossible for NYU, DIODE, TUM or 7-Scenes. We only know none of them is in the published list.
 - **Teammate, main study:** one training run and one seed; random pairs rather than human clicks; DIODE intervals rest on only 10
   scanner positions per type; the DIODE focal length comes from the paper's stated field of view.
 - **Teammate, two-photo test:** only 4 scenes, and photos from one video resemble each other, so its ranges are probably too
@@ -105,13 +106,25 @@ A grid on our held-out set: **original or fine-tuned head**, each with **no scal
   misjudged movement makes a few answers much worse. No safety check was built.
 - **This comparison:** the teammate's figures are from their summary only.
 
-## 7. Questions to ask the teammate
+## 7. Verification pass on the teammate's work (his assistant read his code and Drive files)
 
-1. DIODE indoor shows a pair-distance bias of -27.6% but a per-image scale bias of +22.7%. Different statistics, but are they consistent?
-2. Was the fine-tuned head evaluated only on self-paired photos in the main study?
-3. Is "within 10%" defined relative to the true distance?
-4. In the TUM test, were the movements taken from the ground-truth poses? What would it take to use phone sensor data instead?
-5. Is there a plausibility check that stops a bad movement estimate from rescaling an answer?
+Status after his reply. "Verified" means checked in his code or printed outputs, not re-run by us.
+
+| # | Item | Status |
+|---|---|---|
+| 1 | Weights file, keys and load line | **Not verified by running.** From the saving code: a dict with keys `dpt`, `epoch`, `cfg`, `val`; load with `model.downstream_head1.dpt.load_state_dict(ck['dpt'])`. File size (80,835,115 bytes) fits a plain copy of the 20,201,668-parameter head. |
+| 2 | Image size and resizing | Verified: the same function as MASt3R's own `load_images(size=512)` in training and evaluation. Training ran the frozen parts in bf16, evaluation in fp32. |
+| 3 | Fine-tuned head on two photos | **Not run.** The head was trained only on a photo fed twice. His notebook `05_verification.ipynb` (about 15-20 min on an L4) runs it. |
+| 4 | Metric definitions, DIODE scale | Verified. "Within 10%" is strict `<`. Scale bias is the median of true over predicted depth. **DIODE indoor is about 18.5% too small, not 23%** (median ratio 1.227); outdoor 3.8x too small (ratio 3.766); NYU test about 3.7% too large. He corrected his write-up. The separate -27.6% pair-distance bias includes the focal-length effect. |
+| 5 | Confidence output after fine-tuning | **Not checked.** Only distances were saved, and the loss never touched confidence. Run by notebook 05. |
+| 6 | Hook-bug order | Verified from code: the cached baseline used the buggy hook, which affected only view 2's final decoder output, so view 1 was not affected. Caveat: a file cannot prove which version ran the "difference 0.0" check. That check was also only on two photos (`nyu_0000`, `nyu_0002`). |
+| 7 | Training-data list | Searching the MASt3R repo found no NYU, DIODE or TUM dataset. The metric model's list includes Habitat, BlendedMVS, MegaDepth, ARKitScenes, Co3d, StaticThings3D, Stereo4K, VirtualKitti, WildRGBD, NianticMapFree, DL3DV and an **unreleased internal dataset**. Overlap cannot be ruled out, for either project's data. |
+| 8 | Edge pairs, NYU test | Verified: median error 12.2% for edge pairs against 8.4% otherwise; about 6% of pairs are edge pairs. |
+| 9 | TUM known movement | Verified: taken from ground-truth poses (motion capture), interpolated to each frame; reference photos every 1.5 s; the partner frame closest to 10/25/50 cm within a tolerance. |
+| 10 | Plausibility check on the movement | Verified absent: the code only rescales by `move_true / max(move_pred, 1e-6)`. |
+| 11 | Depth-dependent scale oracle | **Not run.** Needs per-pixel depths; run by notebook 05. Note the "6.4%" figure is NYU train; NYU test is 6.3%. |
+
+**Still blocking the 2x2 experiment:** items 1, 3 and 5 (a working load check, the two-photo test, and what happened to the confidence output).
 
 ## 8. Sentences for the demo
 
