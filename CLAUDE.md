@@ -158,6 +158,8 @@ Format for each entry:
   their summary, not re-run). Ran the frozen system on two phone scenes (tile with pins, mattress with sticky notes):
   with 3 depth-matched anchors every segment was within 5 cm (anchored MAE 0.2-2.0 cm; unanchored 4-15 cm).
   Caveats: near-flat top-down scenes, 8 segments from 2 scenes, chat-resized images, mattress edge convention unconfirmed.
+  Update: added the teammate's two-photo / known-camera-movement experiment (TUM RGB-D; known movement halves the typical error to about 9-10%)
+  to `ABLATION_COMPARISON.md`, including a scale-information ladder and extra questions for the teammate.
   Next: owner decides on more phone scenes at an angle; optional 2x2 (head x anchor) once the teammate shares the head weights.
 
 - 2026-10-08 | Phase 8 | runtime: Kaggle T4 (owner's run); local CPU for the dev cross-check
