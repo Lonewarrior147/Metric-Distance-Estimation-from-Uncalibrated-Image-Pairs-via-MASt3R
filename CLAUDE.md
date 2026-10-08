@@ -40,6 +40,7 @@ Setup.md            How to set up on Kaggle or Colab (read this before running a
 CLAUDE.md           This file.
 ORIGINAL_BRIEF.md   Original project brief (verbatim).
 context.md          Running notes and scope decisions.
+ABLATION_COMPARISON.md  Side-by-side comparison of our approach with the teammate's fine-tuning work (no new runs).
 src/paths.py        Path constants and the MASt3R import bootstrap.
 phases/             Early Phase 1 script from before the single-notebook decision. Reference only.
 results/figures/    Saved plots (matplotlib, static).
@@ -151,6 +152,13 @@ Format for each entry:
 ```
 
 ### raghunandan
+
+- 2026-10-08 | Comparison doc + phone check | runtime: local CPU
+  Did: wrote `ABLATION_COMPARISON.md` (ours vs the teammate's NYU/DIODE head fine-tuning; teammate's numbers are from
+  their summary, not re-run). Ran the frozen system on two phone scenes (tile with pins, mattress with sticky notes):
+  with 3 depth-matched anchors every segment was within 5 cm (anchored MAE 0.2-2.0 cm; unanchored 4-15 cm).
+  Caveats: near-flat top-down scenes, 8 segments from 2 scenes, chat-resized images, mattress edge convention unconfirmed.
+  Next: owner decides on more phone scenes at an angle; optional 2x2 (head x anchor) once the teammate shares the head weights.
 
 - 2026-10-08 | Phase 8 | runtime: Kaggle T4 (owner's run); local CPU for the dev cross-check
   Did: appended Phase 8 (cells 96-111): per-scene convention checks, 5 scenes split into dev (chess, office) and
