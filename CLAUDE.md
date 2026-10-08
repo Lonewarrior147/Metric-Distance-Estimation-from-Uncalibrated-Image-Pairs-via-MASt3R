@@ -84,9 +84,9 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...) and data
 | 3. Point-map extraction | DONE (user ran) | `extract_pointmaps`. Percentile confidence filter. Bbox IoU frame check. Focal estimate. |
 | 4. Correspondence matching | DONE (user ran) | `find_correspondences`, `filter_border`, `filter_matches`, `cross_view_residuals`. |
 | 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
-| 6. Ground-truth validation | WRITTEN, awaiting user run on Kaggle (2026-10-07) | `data/_raw_7scenes` streamed frames of chess/seq-01, conventions verified on real files (pose = camera-to-world, f about 585), `robust_gt_pairs`, 4 scenes x 10 GT pairs, scale test per scene. Cells 76-87. Local CPU preview only (see work log). |
-| 7. Evaluation metrics | WRITTEN, awaiting user run (2026-10-07) | `calculate_metrics()` (MAE, RMSE, rel/pct error, median, p90, bias, scale ratio, rescaled MAE, bootstrap CIs) with a synthetic self-test; summary table, per-pair CSV, 3 plots. Cells 88-95. Reads `ALL_ROWS` or `results/metrics/phase6_gt_results.json`. |
-| 8. Experiments / ablation | NOT STARTED (next, after the owner runs Phases 6-7) | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
+| 6. Ground-truth validation | DONE (user ran on Kaggle T4, 2026-10-08; identical to the local CPU preview) | `data/_raw_7scenes` streamed frames of chess/seq-01, conventions verified on real files (pose = camera-to-world, f about 585), `robust_gt_pairs`, 4 scenes x 10 GT pairs, scale test per scene. Cells 76-87. Local CPU preview only (see work log). |
+| 7. Evaluation metrics | DONE (user ran on Kaggle T4, 2026-10-08) | `calculate_metrics()` (MAE, RMSE, rel/pct error, median, p90, bias, scale ratio, rescaled MAE, bootstrap CIs) with a synthetic self-test; summary table, per-pair CSV, 3 plots. Cells 88-95. Reads `ALL_ROWS` or `results/metrics/phase6_gt_results.json`. |
+| 8. Experiments / ablation | IN PROGRESS (claimed 2026-10-08). Owner asked for an innovation: indoor error down to 3-5 cm. Plan: training-free ensemble (swap + flip + local patch, median, vote spread as uncertainty) + known-length scale anchor, evaluated on held-out 7-Scenes scenes. | Factors from the brief: viewpoint difference, physical distance, image resolution, descriptor match quality, confidence filtering on/off, which points are chosen, texture richness, occlusion. |
 
 **Known open labels.** The notes use labels "B" (input resolution) and "E" (confidence
 percentile). The brief lists the full set above. Confirm with the owner before using the
@@ -134,7 +134,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-_(none)_
+- Phase 8 (innovation + experiments) - raghunandan with Claude Code - since 2026-10-08 - appending to `main.ipynb` after the Phase 7 summary
 
 ---
 
