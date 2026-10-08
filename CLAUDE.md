@@ -20,7 +20,7 @@ hardware. The user marks where an object would go (distance between two small ob
 points); the pipeline estimates that metric gap and answers "does the object fit: yes / no /
 uncertain", using the error bound as a margin. This is the *motivation*, not a change to the
 research question. A fit-check phase would come after Phase 8 and only if the accuracy numbers
-make it viable (a fit check needs roughly 2-5 cm on 1-3 m gaps; unproven). Do not call the idea
+make it viable (a fit check needs roughly 2-5 cm on 1-3 m gaps). Phase 8 result: with a known-length reference in the photos the held-out median error is 1.3 cm and MAE 4.9 cm on gaps of 0.1-0.95 m; without one, MAE is about 11 cm. Gaps of 1-3 m are untested. Do not call the idea
 "unique" in any write-up without a literature check (room-measuring and furniture-fit apps
 exist). Dataset: **7-Scenes** (indoor RGB-D; chosen 2026-10-06), first scene `chess/seq-01`. It is
 believed (from memory, unverified) to be outside MASt3R's training mix (ARKitScenes, ScanNet++,
@@ -86,7 +86,7 @@ data/               NOT in git. Ground-truth scenes (data/scene_XX/...) and data
 | 5. Distance estimation | DONE (user ran on Kaggle T4, no errors, 2026-10-06) | `estimate_distance` (+ `resolve_endpoint`, `build_context`, `analyse_pair`, `original_to_model_xy`, `get_3d_point`). Error floor + refusal policy (constants `REFUSE_FRAC=0.10` etc. are choices). Demo on bundled scenes, "model estimate only". Ground-truth hook `data/scene_*/metadata.json`; 7-Scenes helpers (`sample_gt_pairs`, `write_gt_scene`) with assumed file conventions NOT yet checked against real data. Cells 60-75 of `main.ipynb`. |
 | 6. Ground-truth validation | DONE (user ran on Kaggle T4, 2026-10-08; identical to the local CPU preview) | `data/_raw_7scenes` streamed frames of chess/seq-01, conventions verified on real files (pose = camera-to-world, f about 585), `robust_gt_pairs`, 4 scenes x 10 GT pairs, scale test per scene. Cells 76-87. Local CPU preview only (see work log). |
 | 7. Evaluation metrics | DONE (user ran on Kaggle T4, 2026-10-08) | `calculate_metrics()` (MAE, RMSE, rel/pct error, median, p90, bias, scale ratio, rescaled MAE, bootstrap CIs) with a synthetic self-test; summary table, per-pair CSV, 3 plots. Cells 88-95. Reads `ALL_ROWS` or `results/metrics/phase6_gt_results.json`. |
-| 8. Experiments / ablation | WRITTEN, awaiting the owner's GPU run (2026-10-08); claim still held | Owner asked for an innovation: indoor error down to 3-5 cm. Cells 96-111. Innovation 1 = training-free 8-vote ensemble (adopted only if dev MAE drops >= 5% and median not worse); Innovation 2 = known-length scale anchor, depth-matched, with anchor-agreement refusal. Dev scenes chess+office choose the settings; redkitchen+pumpkin+fire are held out and run once in 8.5 against criteria fixed beforehand (median and MAE both <= 5 cm). Brief factors not covered: image resolution, texture, occlusion. |
+| 8. Experiments / ablation | DONE (user ran on Kaggle T4, no errors, 2026-10-08) | Cells 96-111. Innovation 1 (8-vote ensemble: swap + mirror + patch median) was tested and NOT adopted: no gain for 4x compute. Innovation 2 (known-length scale anchor, 3 depth-matched anchors, refusal when anchors disagree) is the result. Settings chosen on dev scenes (chess, office), frozen, then run once on held-out redkitchen+pumpkin+fire (110 pairs): baseline median 5.8 / MAE 10.8 cm -> final median 1.3 cm [0.6, 2.0] / MAE 4.9 cm [2.0, 8.4]. Pre-registered criteria (both <= 5 cm) MET, MAE only just. See work log and `context.md` section 14. Not covered: image resolution, texture, occlusion. |
 
 **Known open labels.** The notes use labels "B" (input resolution) and "E" (confidence
 percentile). The brief lists the full set above. Confirm with the owner before using the
@@ -134,7 +134,7 @@ at the same time will conflict badly. Use these rules:
 
 ### Current claims
 
-- Phase 8 (innovation + experiments) - raghunandan with Claude Code - since 2026-10-08 - appending to `main.ipynb` after the Phase 7 summary
+_(none)_
 
 ---
 
@@ -151,6 +151,23 @@ Format for each entry:
 ```
 
 ### raghunandan
+
+- 2026-10-08 | Phase 8 | runtime: Kaggle T4 (owner's run); local CPU for the dev cross-check
+  Did: appended Phase 8 (cells 96-111): per-scene convention checks, 5 scenes split into dev (chess, office) and
+  held-out (redkitchen, pumpkin, fire); training-free 8-vote ensemble (innovation 1); known-length scale anchor with
+  depth-matched anchors, endpoint-sharing guard and anchor-agreement refusal (innovation 2); factor analysis.
+  Verified (owner's Kaggle run, all cells, no errors; dev numbers identical to my local CPU run):
+  DEV (80 pairs): ensemble NOT adopted (MAE 11.5 vs 11.7 cm, median 9.0 vs 7.4; vote spread has rho 0.00 with error).
+  Frozen: plain estimator, k=3 depth-matched anchors, refuse when anchor scales disagree (threshold 0.157, ~70% coverage).
+  HELD-OUT (110 pairs from 11 frame pairs; fire_100-160 skipped, no robust pairs), errors in cm:
+  baseline MAE 10.8 / median 5.8 / <=5cm 44%; ensemble 10.7 / 6.8; naive 1-anchor 5.7 / 1.8; FINAL 4.9 [2.0, 8.4] /
+  1.3 [0.6, 2.0] / 88%; final on the 86% answered: MAE 3.7 / median 1.0 / 94%.
+  Pre-registered criteria (median <= 5 and MAE <= 5) MET; the MAE criterion only just, with a 95% interval up to 8.4 cm.
+  Per scene MAE: redkitchen 5.9, pumpkin 6.5, fire 1.5 (two of three above 5 cm). About 3% of pairs have errors > 40 cm.
+  CAVEATS: the result needs a known-length reference marked in the photos (here another ground-truth pair, with Kinect
+  noise); all scenes are 7-Scenes/Kinect; ground-truth pairs are smooth-region and depth-shift-robust (easier than
+  average); 80 dev pairs were used to choose settings (alternatives counted in 8.4).
+  Next: owner decides: fit-check phase, or first more scenes / phone photos with tape-measured lengths.
 
 - 2026-10-07 | Docs sync | runtime: local
   Did: brought `CLAUDE.md` and `context.md` up to date for Phases 5-7 (new `context.md` section 14 with
