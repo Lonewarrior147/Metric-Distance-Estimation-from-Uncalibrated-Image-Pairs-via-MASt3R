@@ -40,6 +40,7 @@ Setup.md            How to set up on Kaggle or Colab (read this before running a
 CLAUDE.md           This file.
 ORIGINAL_BRIEF.md   Original project brief (verbatim).
 context.md          Running notes and scope decisions.
+WRITE_UP_R.md       Full account of our part (Phases 1-8, phone check), structured for slides. The teammate's counterpart is WRITE_UP.md (his file, untracked).
 scale.md            Spec for integrating the scale anchor into the teammate's Gradio UI (tested reference code).
 ABLATION_COMPARISON.md  Side-by-side comparison of our approach with the teammate's fine-tuning work (no new runs).
 src/paths.py        Path constants and the MASt3R import bootstrap.
@@ -159,6 +160,7 @@ Format for each entry:
   their summary, not re-run). Ran the frozen system on two phone scenes (tile with pins, mattress with sticky notes):
   with 3 depth-matched anchors every segment was within 5 cm (anchored MAE 0.2-2.0 cm; unanchored 4-15 cm).
   Caveats: near-flat top-down scenes, 8 segments from 2 scenes, chat-resized images, mattress edge convention unconfirmed.
+  Update 4: wrote `WRITE_UP_R.md` (our full write-up, slide-ready structure) and saved the key figures from the Kaggle outputs to `results/figures/`.
   Update 3: wrote `scale.md` (integration spec + tested reference code for the known-length anchor, ablation arms A-D) for the teammate's Gradio UI.
   Update 2: the teammate's assistant verified items from his code/Drive (scale wording fixed: DIODE indoor 18.5% too small, not 23%; load line uses ck['dpt']);
   items 1, 3, 5 (load check, fine-tuned head on two photos, confidence output) still need his notebook 05 run on Colab. Our copy of TEAM_GUIDE.md is the old version (still says 23%).
